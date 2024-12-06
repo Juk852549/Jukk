@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คำนวณค่า BMR และ TDEE By จักรภพ</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    label {
+      font-size: 16px;
+      color: #333;
+    }
+
+    input, select {
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #results {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .form-section {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>คำนวณค่าคาร์บ By จักรภพ</h1>
+
+    <form id="calculationForm">
+      <div class="form-section">
+        <label for="gender">เลือกเพศ: </label>
+        <select id="gender" required>
+          <option value="male">ชาย</option>
+          <option value="female">หญิง</option>
+        </select>
+      </div>
+
+      <div class="form-section">
+        <label for="weight">น้ำหนัก (กิโลกรัม): </label>
+        <input type="number" id="weight" required>
+      </div>
+
+      <div class="form-section">
+        <label for="height">ส่วนสูง (เซนติเมตร): </label>
+        <input type="number" id="height" required>
+      </div>
+
+      <div class="form-section">
+        <label for="age">อายุ (ปี): </label>
+        <input type="number" id="age" required>
+      </div>
+
+      <div class="form-section">
+        <label for="exercise">จำนวนวันที่ออกกำลังกายต่อสัปดาห์ (ไม่ออกเลยให้ใส่ 0): </label>
+        <input type="number" id="exercise" required>
+      </div>
+
+      <button type="button" onclick="calculate()">คำนวณ</button>
+    </form>
+
+    <h2>ผลลัพธ์:</h2>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    function calculate() {
+      const gender = document.getElementById('gender').value;
+      const weight = parseFloat(document.getElementById('weight').value);
+      const height = parseFloat(document.getElementById('height').value);
+      const age = parseInt(document.getElementById('age').value);
+      const exercise = parseInt(document.getElementById('exercise').value);
+
+      // สูตรคำนวณ BMR สำหรับเพศชายและหญิง
+      let bmr;
+      if (gender === 'male') {
+        bmr = 66.5 + (13.75 * weight) + (5 * height) - (6.75 * age);
+      } else {
+        bmr = 655 + (9.56 * weight) + (1.85 * height) - (4.68 * age);
+      }
+
+      // คำนวณ TDEE
+      let tdee;
+      if (exercise === 0) {
+        tdee = bmr * 1.2; // นั่งทำงาน
+      } else if (exercise <= 2) {
+        tdee = bmr * 1.375; // ออกกำลังกายเบาๆ
+      } else if (exercise <= 4) {
+        tdee = bmr * 1.55; // ออกกำลังกายปานกลาง
+      } else if (exercise <= 6) {
+        tdee = bmr * 1.725; // ออกกำลังกายหนัก
+      } else {
+        tdee = bmr * 1.9; // ออกกำลังกายหนักมาก
+      }
+
+      // คำนวณ 20% ของ TDEE
+      const carb20Percent = tdee * 0.2;
+
+      // คำนวณจำนวนกรัมของคาร์บจาก 20% ของ TDEE
+      const carbGrams = carb20Percent / 4;
+
+      // คำนวณจำนวนคาร์บต่อวัน
+      const carbsPerDay = carbGrams / 15;
+
+      const results = `
+        <p>1. สรุปอัตราการใช้พลังงานขั้นพื้นฐาน (BMR) = ${bmr.toFixed(2)} แคลอรี่ต่อวัน</p>
+        <p>2. สรุปอัตราการใช้พลังงานต่อวันโดยรวม (TDEE) = ${tdee.toFixed(2)} แคลอรี่ต่อวัน</p>
+        <p>3. พลังงานที่ควรได้รับจากคาร์โบไฮเดรต 20%ของTDEE  = ${carb20Percent.toFixed(2)} แคลอรี่</p>
+        <p>4. TDEE ที่หารด้วย 4 มีหน่วยเป็นกรัมต่อวัน = ${carbGrams.toFixed(2)} กรัม</p>
+        <p>5. ปริมาณคาร์บที่ควรได้รับต่อวัน = ${carbsPerDay.toFixed(2)} คาร์บต่อวัน</p>
+      `;
+
+      document.getElementById('results').innerHTML = results;
+    }
+  </script>
+
+</body>
+</html>
